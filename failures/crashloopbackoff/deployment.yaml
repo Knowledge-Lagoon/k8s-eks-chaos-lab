@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crashloop-demo
+  namespace: chaos-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crashloop-demo
+  template:
+    metadata:
+      labels:
+        app: crashloop-demo
+    spec:
+      containers:
+        - name: crashloop-demo
+          image: busybox
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Application starting..."
+              sleep 5
+              echo "Application crashed!"
+              exit 1
