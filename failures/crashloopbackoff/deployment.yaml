@@ -20,7 +20,6 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Application starting..."
-              sleep 5
-              echo "Application crashed!"
+              echo "Database connection failed"
+              echo "Unable to connect to postgres-service"
               exit 1
