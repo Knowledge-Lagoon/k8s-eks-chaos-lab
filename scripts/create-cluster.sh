@@ -19,6 +19,16 @@ echo "Loaded configuration:"
 echo "Cluster: $CLUSTER_NAME"
 echo "Region : $AWS_REGION"
 
+if [ "$#" -gt 0 ]; then
+  CLUSTER_TARGETS=("$@")
+elif declare -p CLUSTER_NAMES >/dev/null 2>&1; then
+  CLUSTER_TARGETS=("${CLUSTER_NAMES[@]}")
+else
+  CLUSTER_TARGETS=("$CLUSTER_NAME")
+fi
+
+echo "Clusters to create: ${CLUSTER_TARGETS[*]}"
+
 # ----------------------------------------
 # AWS Authentication
 # ----------------------------------------
@@ -75,49 +85,47 @@ command -v kubectl >/dev/null 2>&1 || {
 echo "All prerequisites found."
 
 # ----------------------------------------
-# Check If Cluster Already Exists
+# Create or Reuse Clusters
 # ----------------------------------------
 
 echo ""
-echo "Checking if EKS cluster already exists..."
+echo "Checking EKS clusters..."
 echo ""
 
-if eksctl get cluster --region "${AWS_REGION}" | grep -q "${CLUSTER_NAME}"; then
-  echo "Cluster '${CLUSTER_NAME}' already exists in region '${AWS_REGION}'."
-  echo "Skipping cluster creation."
-else
-  echo "Creating EKS cluster '${CLUSTER_NAME}' in region '${AWS_REGION}'..."
+for cluster_name in "${CLUSTER_TARGETS[@]}"; do
+  echo ""
+  echo "=== Processing cluster '${cluster_name}' ==="
+  echo ""
 
-  eksctl create cluster \
-    --name "${CLUSTER_NAME}" \
+  if eksctl get cluster --region "${AWS_REGION}" | grep -q "${cluster_name}"; then
+    echo "Cluster '${cluster_name}' already exists in region '${AWS_REGION}'."
+    echo "Skipping cluster creation."
+  else
+    echo "Creating EKS cluster '${cluster_name}' in region '${AWS_REGION}'..."
+
+    eksctl create cluster \
+      --name "${cluster_name}" \
+      --region "${AWS_REGION}" \
+      --nodes "${NODE_COUNT}" \
+      --node-type "${NODE_TYPE}" \
+      --spot
+  fi
+
+  echo ""
+  echo "Configuring kubectl for '${cluster_name}'..."
+  echo ""
+
+  aws eks update-kubeconfig \
     --region "${AWS_REGION}" \
-    --nodes "${NODE_COUNT}" \
-    --node-type "${NODE_TYPE}" \
-    --spot
-fi
+    --name "${cluster_name}"
 
-# ----------------------------------------
-# Configure kubectl
-# ----------------------------------------
+  echo ""
+  echo "Verifying cluster nodes for '${cluster_name}'..."
+  echo ""
 
-echo ""
-echo "Configuring kubectl..."
-echo ""
+  kubectl get nodes
 
-aws eks update-kubeconfig \
-  --region "${AWS_REGION}" \
-  --name "${CLUSTER_NAME}"
-
-# ----------------------------------------
-# Verify Cluster
-# ----------------------------------------
-
-echo ""
-echo "Verifying cluster nodes..."
-echo ""
-
-kubectl get nodes
-
-echo ""
-echo "EKS cluster '${CLUSTER_NAME}' is ready."
-echo ""
+  echo ""
+  echo "EKS cluster '${cluster_name}' is ready."
+  echo ""
+done
