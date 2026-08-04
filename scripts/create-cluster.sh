@@ -7,6 +7,7 @@ set -e
 # ----------------------------------------
 
 CONFIG_FILE="$(dirname "$0")/../config/cluster.conf"
+echo "CONFIG FILE: $CONFIG_FILE"
 
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "ERROR: Config file not found: $CONFIG_FILE"
