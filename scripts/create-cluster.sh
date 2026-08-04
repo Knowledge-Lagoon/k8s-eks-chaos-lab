@@ -28,7 +28,7 @@ echo "===== AWS Authentication ====="
 echo ""
 
 read -p "AWS Access Key ID: " AWS_ACCESS_KEY_ID
-read -s -p "AWS Secret Access Key: " AWS_SECRET_ACCESS_KEY
+read -p "AWS Secret Access Key: " AWS_SECRET_ACCESS_KEY
 echo ""
 
 export AWS_ACCESS_KEY_ID
