@@ -29,17 +29,32 @@ aws eks update-kubeconfig \
   --name "${TARGET_CLUSTER}"
 
 echo ""
-echo "Deleting CrashLoopBackOff deployment..."
+echo "Creating namespace..."
 echo ""
 
-kubectl delete deployment crashloop-demo -n "${NAMESPACE}" --ignore-not-found=true
+kubectl create namespace ${NAMESPACE} \
+  --dry-run=client -o yaml | kubectl apply -f -
 
 echo ""
-echo "Deleting namespace '${NAMESPACE}'..."
+echo "Deploying OOMKilled scenario..."
 echo ""
 
-kubectl delete namespace "${NAMESPACE}" --ignore-not-found=true
+kubectl apply -f "${SCRIPT_DIR}/deployment.yaml"
 
 echo ""
-echo "CrashLoopBackOff scenario cleaned up."
+echo "Waiting for pod creation..."
 echo ""
+
+sleep 15
+
+kubectl get pods -n ${NAMESPACE}
+
+echo ""
+echo "OOMKilled scenario deployed."
+echo ""
+
+echo "Useful commands:"
+echo ""
+echo "kubectl get pods -n ${NAMESPACE}"
+echo "kubectl describe pod -n ${NAMESPACE} <pod-name>"
+echo "kubectl logs -n ${NAMESPACE} pod/<pod-name>"

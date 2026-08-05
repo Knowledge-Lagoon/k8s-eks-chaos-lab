@@ -29,10 +29,10 @@ aws eks update-kubeconfig \
   --name "${TARGET_CLUSTER}"
 
 echo ""
-echo "Deleting CrashLoopBackOff deployment..."
+echo "Deleting OOMKilled deployment..."
 echo ""
 
-kubectl delete deployment crashloop-demo -n "${NAMESPACE}" --ignore-not-found=true
+kubectl delete -f "${SCRIPT_DIR}/deployment.yaml" --ignore-not-found=true
 
 echo ""
 echo "Deleting namespace '${NAMESPACE}'..."
@@ -41,5 +41,5 @@ echo ""
 kubectl delete namespace "${NAMESPACE}" --ignore-not-found=true
 
 echo ""
-echo "CrashLoopBackOff scenario cleaned up."
+echo "OOMKilled scenario cleaned up."
 echo ""
