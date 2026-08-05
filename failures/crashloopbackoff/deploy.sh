@@ -13,7 +13,7 @@ fi
 source "${CONFIG_FILE}"
 
 NAMESPACE="chaos-lab"
-TARGET_CLUSTER="${CLUSTER_NAME}"
+TARGET_CLUSTER="${1:-${CLUSTER_NAME}}"
 
 if ! aws eks describe-cluster --name "${TARGET_CLUSTER}" --region "${AWS_REGION}" >/dev/null 2>&1; then
   echo "ERROR: Cluster '${TARGET_CLUSTER}' was not found in region '${AWS_REGION}'."
