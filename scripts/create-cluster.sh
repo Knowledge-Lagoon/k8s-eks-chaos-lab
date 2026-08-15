@@ -30,36 +30,6 @@ fi
 echo "Clusters to create: ${CLUSTER_TARGETS[*]}"
 
 # ----------------------------------------
-# AWS Authentication
-# ----------------------------------------
-
-echo ""
-echo "===== AWS Authentication ====="
-echo ""
-
-read -r -p "AWS Access Key ID: " AWS_ACCESS_KEY_ID
-read -r -s -p "AWS Secret Access Key: " AWS_SECRET_ACCESS_KEY
-echo ""
-
-export AWS_ACCESS_KEY_ID
-export AWS_SECRET_ACCESS_KEY
-export AWS_DEFAULT_REGION="${AWS_REGION}"
-
-if [ -z "${AWS_ACCESS_KEY_ID}" ] || [ -z "${AWS_SECRET_ACCESS_KEY}" ]; then
-  echo "ERROR: AWS credentials were not provided."
-  exit 1
-fi
-
-echo ""
-echo "Validating AWS credentials..."
-echo ""
-
-if ! aws sts get-caller-identity >/dev/null 2>&1; then
-  echo "ERROR: AWS credentials are invalid or the AWS CLI is not configured correctly."
-  exit 1
-fi
-
-# ----------------------------------------
 # Verify Required Tools
 # ----------------------------------------
 
